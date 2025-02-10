@@ -1,5 +1,3 @@
-import math
-
 def find_x():
     left, right = 0.0, 2.0
     eps = 1e-7
