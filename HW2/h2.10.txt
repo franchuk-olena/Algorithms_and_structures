@@ -1,0 +1,12 @@
+def f(n):
+    sum = 0
+    for i in range(1, n + 1):
+        sum = sum + i
+    return sum
+вийде сума арифметичної прогресії
+Sn = 1 + 2 + ... + n = (n * (n + 1)) // 2
+
+можна оптимізувати:
+def f(n):
+    return (n * (n + 1)) // 2
+ res = O(1)
