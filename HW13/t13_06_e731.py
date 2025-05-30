@@ -1,24 +1,25 @@
-def convert_prefix_to_infix(expression):
+def prefix_to_infix(expr):
     precedence = {'+': 1, '-': 1, '*': 2, '/': 2}
-    operands = []
+    stack = []
 
-    for symbol in reversed(expression):
-        if symbol.isalpha():
-            operands.append((symbol, 3))
+    for char in reversed(expr):
+        if char.isalpha():
+            stack.append((char, 3))
         else:
-            op1, prec1 = operands.pop()
-            op2, prec2 = operands.pop()
-            current_prec = precedence[symbol]
+            left, left_prec = stack.pop()
+            right, right_prec = stack.pop()
+            curr_prec = precedence[char]
 
-            if prec1 < current_prec:
-                op1 = f'({op1})'
-            if prec2 < current_prec or (symbol in "-/" and prec2 == current_prec):
-                op2 = f'({op2})'
+            if left_prec < curr_prec:
+                left = f'({left})'
+            if right_prec < curr_prec or (char in "-/" and right_prec == curr_prec):
+                right = f'({right})'
 
-            new_expr = f'{op1}{symbol}{op2}'
-            operands.append((new_expr, current_prec))
+            new_expr = f'{left}{char}{right}'
+            stack.append((new_expr, curr_prec))
 
-    return operands[0][0]
+    return stack[0][0]
 
 expr = input().strip()
-print(convert_prefix_to_infix(expr))
+
+print(prefix_to_infix(expr))

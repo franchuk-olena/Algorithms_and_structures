@@ -1,108 +1,73 @@
-def gcd(a, b):
-    while b:
-        a, b = b, a % b
-    return a
+import math
 
-def lcm(a, b):
-    return a // gcd(a, b) * b
-
-class SegmentTreeGCD:
+class SegmentTree:
     def __init__(self, data):
         self.n = len(data)
-        self.size = 1
-        while self.size < self.n:
-            self.size *= 2
-        self.tree = [0] * (2 * self.size)
-        self.build(data)
+        self.gcd_tree = [0] * (4 * self.n)
+        self.lcm_tree = [1] * (4 * self.n)
+        self.build(data, 1, 0, self.n - 1)
 
-    def build(self, data):
-        for i in range(self.n):
-            self.tree[self.size + i] = data[i]
-        for i in range(self.size - 1, 0, -1):
-            self.tree[i] = gcd(self.tree[2 * i], self.tree[2 * i + 1])
+    def build(self, data, node, l, r):
+        if l == r:
+            self.gcd_tree[node] = data[l]
+            self.lcm_tree[node] = data[l]
+        else:
+            mid = (l + r) // 2
+            self.build(data, 2 * node, l, mid)
+            self.build(data, 2 * node + 1, mid + 1, r)
+            self.gcd_tree[node] = math.gcd(self.gcd_tree[2 * node], self.gcd_tree[2 * node + 1])
+            self.lcm_tree[node] = self.lcm(self.lcm_tree[2 * node], self.lcm_tree[2 * node + 1])
 
-    def update(self, pos, value):
-        pos += self.size
-        self.tree[pos] = value
-        while pos > 1:
-            pos //= 2
-            self.tree[pos] = gcd(self.tree[2 * pos], self.tree[2 * pos + 1])
+    def update(self, node, l, r, idx, value):
+        if l == r:
+            self.gcd_tree[node] = value
+            self.lcm_tree[node] = value
+        else:
+            mid = (l + r) // 2
+            if idx <= mid:
+                self.update(2 * node, l, mid, idx, value)
+            else:
+                self.update(2 * node + 1, mid + 1, r, idx, value)
+            self.gcd_tree[node] = math.gcd(self.gcd_tree[2 * node], self.gcd_tree[2 * node + 1])
+            self.lcm_tree[node] = self.lcm(self.lcm_tree[2 * node], self.lcm_tree[2 * node + 1])
 
-    def query(self, l, r):
-        l += self.size
-        r += self.size + 1
-        res = 0
-        while l < r:
-            if l % 2 == 1:
-                res = gcd(res, self.tree[l])
-                l += 1
-            if r % 2 == 1:
-                r -= 1
-                res = gcd(res, self.tree[r])
-            l //= 2
-            r //= 2
-        return res
+    def gcd_query(self, node, l, r, ql, qr):
+        if ql > r or qr < l:
+            return 0
+        if ql <= l and r <= qr:
+            return self.gcd_tree[node]
+        mid = (l + r) // 2
+        left = self.gcd_query(2 * node, l, mid, ql, qr)
+        right = self.gcd_query(2 * node + 1, mid + 1, r, ql, qr)
+        return math.gcd(left, right)
 
-class SegmentTreeLCM:
-    def __init__(self, data):
-        self.n = len(data)
-        self.size = 1
-        while self.size < self.n:
-            self.size *= 2
-        self.tree = [1] * (2 * self.size)
-        self.build(data)
+    def lcm_query(self, node, l, r, ql, qr):
+        if ql > r or qr < l:
+            return 1
+        if ql <= l and r <= qr:
+            return self.lcm_tree[node]
+        mid = (l + r) // 2
+        left = self.lcm_query(2 * node, l, mid, ql, qr)
+        right = self.lcm_query(2 * node + 1, mid + 1, r, ql, qr)
+        return self.lcm(left, right)
 
-    def build(self, data):
-        for i in range(self.n):
-            self.tree[self.size + i] = data[i]
-        for i in range(self.size - 1, 0, -1):
-            self.tree[i] = lcm(self.tree[2 * i], self.tree[2 * i + 1])
-
-    def update(self, pos, value):
-        pos += self.size
-        self.tree[pos] = value
-        while pos > 1:
-            pos //= 2
-            self.tree[pos] = lcm(self.tree[2 * pos], self.tree[2 * pos + 1])
-
-    def query(self, l, r):
-        l += self.size
-        r += self.size + 1
-        res = 1
-        while l < r:
-            if l % 2 == 1:
-                res = lcm(res, self.tree[l])
-                l += 1
-            if r % 2 == 1:
-                r -= 1
-                res = lcm(res, self.tree[r])
-            l //= 2
-            r //= 2
-        return res
+    def lcm(self, a, b):
+        return a * b // math.gcd(a, b)
 
 n = int(input())
 a = list(map(int, input().split()))
 m = int(input())
-
-gcd_tree = SegmentTreeGCD(a)
-lcm_tree = SegmentTreeLCM(a)
-
+tree = SegmentTree(a)
 for _ in range(m):
-    parts = input().split()
-    q = int(parts[0])
-    l = int(parts[1]) - 1
-    r = int(parts[2])
-
+    q, l, r = map(int, input().split())
     if q == 1:
-        r -= 1
-        g = gcd_tree.query(l, r)
-        l_val = lcm_tree.query(l, r)
-        if g < l_val:
+        gcd_val = tree.gcd_query(1, 0, n - 1, l - 1, r - 1)
+        lcm_val = tree.lcm_query(1, 0, n - 1, l - 1, r - 1)
+        if gcd_val < lcm_val:
             print("wins")
-        elif g > l_val:
+        elif gcd_val > lcm_val:
             print("loser")
         else:
             print("draw")
-    else:  # q == 2
-        gcd_tree.update(l, r)
-        lcm_tree.update(l, r)
+    else:
+        tree.update(1, 0, n - 1, l - 1, r)

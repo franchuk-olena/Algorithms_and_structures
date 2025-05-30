@@ -4,9 +4,11 @@ def g(n):
         sum = sum + i + f(i)
     return sum
 
-sum = n^3/6 + n^2 + 5n/6
+sum = n(n+1)/2 + 1/6*n(n+1)(n+2) = n^3/6 + n^2 + 5n/6
 
-можна оптимізувати:
+покращення:
+
 def g(n):
     return n**3 // 6 + n**2 + 5*n // 6
-res = O(1)
+
+O(1)

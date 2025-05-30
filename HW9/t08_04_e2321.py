@@ -1,15 +1,22 @@
-def quicksort(arr):
-    if len(arr) <= 1:
-        return arr
-    pivot = arr[len(arr) // 2]
-    left = [x for x in arr if x < pivot]
-    middle = [x for x in arr if x == pivot]
-    right = [x for x in arr if x > pivot]
-    return quicksort(left) + middle + quicksort(right)
-
+def qsort(array, left, right):
+    if left >= right:
+        return
+    pivot = array[(left + right) // 2]
+    i, j = left, right
+    while i <= j:
+        while array[i] < pivot:
+            i += 1
+        while array[j] > pivot:
+            j -= 1
+        if i <= j:
+            array[i], array[j] = array[j], array[i]
+            i += 1
+            j -= 1
+    qsort(array, left, j)
+    qsort(array, i, right)
 
 n = int(input())
-arr = list(map(int, input().split()))
+array = list(map(int, input().split()))
 
-sorted_arr = quicksort(arr)
-print(*sorted_arr)
+qsort(array, 0, n - 1)
+print(*array)

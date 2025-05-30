@@ -1,23 +1,28 @@
-def convert_to_base(A: str, P: str) -> str:
-    A = int(A)
-    P = int(P)
+def conver(A, P ):
 
     if A == 0:
         return "0"
 
-    stack = ""
+    stack = []
 
     while A > 0:
         remainder = A % P
-        if remainder < 10:
-            stack = str(remainder) + stack
-        else:
-            stack = f'[{remainder}]' + stack
+        stack.append(remainder)
         A //= P
 
-    return stack
+    res = ''
+    while stack:
+        digit = stack.pop()
+        if digit <= 9:
+            res += str(digit)
+        else:
+            res += f"[{digit}]"
 
-A = input().strip()
-P = input().strip()
+    return res
 
-print(convert_to_base(A, P))
+
+
+A = int(input())
+P = int(input())
+
+print(conver(A, P))

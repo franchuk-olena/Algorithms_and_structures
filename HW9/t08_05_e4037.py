@@ -1,35 +1,32 @@
-def merge(left, right):
-    result = []
-    i = j = 0
+def merge_sort(array):
+    if len(array) <= 1:
+        return array
+
+    mid = len(array) // 2
+    left = merge_sort(array[:mid])
+    right = merge_sort(array[mid:])
+
+    sorted_arr = []
+    i, j = 0, 0
 
     while i < len(left) and j < len(right):
         if left[i][0] <= right[j][0]:
-            result.append(left[i])
+            sorted_arr.append(left[i])
             i += 1
         else:
-            result.append(right[j])
+            sorted_arr.append(right[j])
             j += 1
 
-    result.extend(left[i:])
-    result.extend(right[j:])
-    return result
+    sorted_arr.extend(left[i:])
+    sorted_arr.extend(right[j:])
 
-def merge_sort(arr):
-    if len(arr) <= 1:
-        return arr
-    mid = len(arr) // 2
-    left = merge_sort(arr[:mid])
-    right = merge_sort(arr[mid:])
-    return merge(left, right)
+    return sorted_arr
 
-N = int(input())
-robots = []
 
-for _ in range(N):
-    main, auxiliary = map(int, input().split())
-    robots.append((main, auxiliary))
+n = int(input())
+array = [tuple(map(int, input().split())) for _ in range(n)]
 
-sorted_robots = merge_sort(robots)
+sort = merge_sort(array)
 
-for robot in sorted_robots:
+for robot in sort:
     print(robot[0], robot[1])
